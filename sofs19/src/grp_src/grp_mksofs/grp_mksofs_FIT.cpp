@@ -83,7 +83,8 @@ namespace sofs19
                     inodeBlock[0].i2[i] = NullReference;
                 inodeBlock[0].next = 69;
                 //inodeBlock[0].next = NullReference;
-            } else if(nInode==itotal) {
+            }
+            if(nInode==itotal) {
                 inodeBlock[IPB-1].next=NullReference;
             }
             soWriteRawBlock(block, inodeBlock);
