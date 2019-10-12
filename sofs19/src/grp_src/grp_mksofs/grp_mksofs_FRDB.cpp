@@ -6,6 +6,7 @@
 
 #include <inttypes.h>
 #include <string.h>
+#include <math.h>
 
 namespace sofs19
 {
@@ -13,8 +14,30 @@ namespace sofs19
     {
         soProbe(605, "%s(%u, %u, %u)\n", __FUNCTION__, ntotal, itotal, nbref);
 
-        /* change the following line by your code */
-        return binFillReferenceDataBlocks(ntotal, itotal, nbref);
-    }
-};
+        uint32_t first = 1 + itotal / IPB  + 1; //1ª end físico da zona ref 
+        uint32_t fbr = 1 + nbref; //indice da 1ª posiçao lógica do FreeDataBlock
+        uint32_t ref[RPB];
 
+        for(uint32_t i = 1; i<nbref; i++){
+            ref[0] = i+1;
+            for(uint32_t k = 1; k<RPB; k++){
+                ref[k] = fbr++;
+            }
+        soWriteRawBlock(first+i-1, ref); // escreve bloco a bloco as referências 
+        }
+    
+        for(uint32_t j = 0; j<RPB; j++){ //último bloco de ref
+            ref[0] = NullReference; //1ª pos último bloco
+            if ( (fbr + first)  >= ntotal){
+                ref[j] = NullReference;
+            }
+            else{
+                ref[j] = fbr++;
+            }
+        }
+        soWriteRawBlock(first + nbref, ref);
+
+        return binFillReferenceDataBlocks(ntotal, itotal, nbref);
+
+    }
+}
