@@ -18,7 +18,6 @@ namespace sofs19
         
         /* change the following line by your code */
         
-        printf("Inodes: %lu\n", IPB);
         // Número de blocks on Inode Table
         unsigned long nBLocks = itotal/IPB;
         unsigned long nInode = 0;
@@ -81,8 +80,6 @@ namespace sofs19
                     inodeBlock[0].i1[i] = NullReference;
                 for(i=0; i<N_DOUBLE_INDIRECT; i++)
                     inodeBlock[0].i2[i] = NullReference;
-                inodeBlock[0].next = 69;
-                //inodeBlock[0].next = NullReference;
             }
             if(nInode==itotal) {
                 inodeBlock[IPB-1].next=NullReference;
