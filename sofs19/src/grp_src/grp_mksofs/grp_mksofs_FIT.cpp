@@ -18,17 +18,16 @@ namespace sofs19
         
         /* change the following line by your code */
         
-        printf("Inodes: %lu\n", IPB);
         // Número de blocks on Inode Table
-        unsigned long nBLocks = itotal/IPB;
-        unsigned long nInode = 0;
+        uint32_t nBLocks = itotal/IPB;
+        uint32_t nInode = 0;
         // Iterar pela tabela
-        for(unsigned long block=1; block<=nBLocks; block++) {
+        for(uint32_t block=1; block<=nBLocks; block++) {
             // Inicializar Bloco
             SOInode inodeBlock[IPB];
-            for(unsigned long inode=0; inode<IPB; inode++) {
+            for(uint32_t inode=0; inode<IPB; inode++) {
                 // Inicializa cada inode com valores default
-                inodeBlock[inode].mode = 0175000;
+                inodeBlock[inode].mode = INODE_FREE;
                 inodeBlock[inode].lnkcnt = 0;
                 inodeBlock[inode].owner = 0;
                 inodeBlock[inode].group = 0;
@@ -37,8 +36,7 @@ namespace sofs19
                 inodeBlock[inode].ctime = 0;
                 inodeBlock[inode].mtime = 0;
                 inodeBlock[inode].next = ++nInode;
-                inodeBlock[inode].d[0] = 0;
-                unsigned long i;
+                uint32_t i;
                 for(i=0; i<N_DIRECT; i++)
                     inodeBlock[inode].d[i] = NullReference;
                 for(i=0; i<N_INDIRECT; i++)
@@ -56,8 +54,8 @@ namespace sofs19
                 */
                 inodeBlock[0].mode = 0040775;
                 inodeBlock[0].lnkcnt = 2;
-                inodeBlock[0].owner = 0;
-                inodeBlock[0].group = 0;
+                inodeBlock[0].owner = 1000;
+                inodeBlock[0].group = 1000;
                 inodeBlock[0].size = BlockSize;
                 // "in the newly-formatted disk the root directory occupies a single data block, the one immediately after the inode table"
                 inodeBlock[0].blkcnt = 1;
@@ -73,17 +71,10 @@ namespace sofs19
                     inodeBlock[0].mtime=0;
                     inodeBlock[0].atime=0;
                 }
+                // reference to root dir
                 inodeBlock[0].d[0] = 0;
-                unsigned long i;
-                for(i=1; i<N_DIRECT; i++)
-                    inodeBlock[0].d[i] = NullReference;
-                for(i=0; i<N_INDIRECT; i++)
-                    inodeBlock[0].i1[i] = NullReference;
-                for(i=0; i<N_DOUBLE_INDIRECT; i++)
-                    inodeBlock[0].i2[i] = NullReference;
-                inodeBlock[0].next = 69;
-                //inodeBlock[0].next = NullReference;
-            } else if(nInode==itotal) {
+            }
+            if(nInode==itotal) {
                 inodeBlock[IPB-1].next=NullReference;
             }
             soWriteRawBlock(block, inodeBlock);
