@@ -22,7 +22,7 @@ namespace sofs19
         /* change the following line by your code */
 
         //creats the data structure that represents the block
-        //the whole data block is formatted as an array of DPB directory entries
+        //the whole data block is formated as an array of DPB directory entries
         SODirEntry dir[DPB];
 
         // '.' directory itself
