@@ -17,8 +17,8 @@ namespace sofs19
         /* Organização física:
         	. Superblock ocupa posição 0
         	. Seguido da InodeTable (itotal/IPB)
-        	. Seguido pelas Reference Data Blocks (nbref)
-        	. Por ultimo temos o Primeiro Data Block -> Root (Não fazer reset!!)
+        	. Seguido do primeiro Data Block -> Root (Não fazer reset!!)
+        	. E pelas Reference Data Blocks (nbref)
         */
         uint32_t posFisica = (itotal/IPB) + nbref + 2;
         for(; posFisica<ntotal; posFisica++) {
