@@ -13,7 +13,49 @@ namespace sofs19
         soProbe(601, "%s(%u, %u, ...)\n", __FUNCTION__, ntotal, itotal);
 
         /* change the following line by your code */
-        binComputeStructure(ntotal, itotal, nbref);
+        
+        // if it is zero initially, the value ntotal/16 should be used as the start value for itotal, where / stands for the integer division
+        if(itotal==0) itotal=ntotal/16;
+        /* Aviso!! Codigo dos profs usa itotal/4, mas a documentação diz itotal/8 ... 
+        	Fui com a versão de teste porque a documentação já tinha tb outro erro. 
+        	No código dos profs arredonda tb por cima depois da operação... 
+        	Se for preciso depois de nos esclarecerem isso eu mudo.
+		*/
+
+        //itotal is always lower than or equal to ntotal/8 (ntotal/4 nos testes, encolhe ombros)
+        if(itotal>ntotal/4) {
+        	itotal=ntotal/4;
+        }
+
+        // "itotal is always greater than or equal to IPC??" Outro erro na doc, IPC não exite, assumo que seja IPB (faz sentido) 
+        if(itotal<IPB) itotal=IPB;
+        
+        //itotal must be rounded up to be multiple of IPB
+       	//if(itotal%IPB!=0) itotal=((itotal/IPB)+1)*IPB;
+       	itotal = (1 + ((itotal - 1) / IPB)) * IPB;
+
+       	/* Continhas aos números de nbref:
+			. Começar de ntotal
+			. Retirar superblock (1)
+			. Retirar InodeTable (itotal/IPB)
+			. Retirar o Root (1) (Já não conta como bloco livre)
+			. Retirar número de referências que já existam na Head Cache no SuperBlock 
+       	*/
+       	uint32_t freeDB = ntotal - 2 - itotal/IPB;
+       	// evitar overflow
+       	if(freeDB <= HEAD_CACHE_SIZE) {
+       		nbref = 0;
+       	} else {
+       		freeDB -= HEAD_CACHE_SIZE;
+    		for(nbref=1; nbref*RPB<freeDB; nbref++) { 
+    			//"if, after splitting data blocks between reference data blocks and free data blocks, a single data block remains, it is assigned to the inode table"; 
+    			if(freeDB-nbref*RPB==1) {
+    				itotal += IPB;
+    				break;
+    			}
+    		}
+    	}
+        //binComputeStructure(ntotal, itotal, nbref);      
     }
 };
 
