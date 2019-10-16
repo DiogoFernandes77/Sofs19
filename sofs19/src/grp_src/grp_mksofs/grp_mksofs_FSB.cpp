@@ -39,8 +39,8 @@ namespace sofs19
 
         
 
-        int data_zone_size = ntotal -1 -itotal;
-        int free_data_zone = data_zone_size - 1 - nbref;
+        uint32_t data_zone_size = ntotal -1 -itotal;
+        uint32_t free_data_zone = data_zone_size - 1 - nbref;
         
         sb.dz_total = data_zone_size;
         sb.dz_free = free_data_zone;
@@ -63,7 +63,7 @@ namespace sofs19
 
         }
 
-        
+        soWriteRawBlock(0,&sb);
         
         
         
