@@ -32,14 +32,14 @@ namespace sofs19
         sb.ifree = itotal - 1;
         
         sb.ihead = 1; //The list of free inodes must start in inode number 1 and go sequentially to the last.
-        sb.itail = itotal;//
+        sb.itail = itotal - 1;//
         
         sb.dz_start = 1 + itotal/IPB; 
         
 
         
 
-        uint32_t data_zone_size = ntotal -1 -itotal;
+        uint32_t data_zone_size = ntotal - sb.dz_start;
         uint32_t free_data_zone = data_zone_size - 1 - nbref;
         
         sb.dz_total = data_zone_size;
@@ -52,17 +52,49 @@ namespace sofs19
         sb.tail_blk = nbref;
         sb.tail_idx = 0;
         
-        for(int i = 0;i < TAIL_CACHE_SIZE;i++){
+        if(sb.dz_free < HEAD_CACHE_SIZE){
+            sb.head_blk = NullReference;
+            sb.tail_blk = NullReference;
+            sb.head_idx = NullReference;
+            sb.tail_idx = NullReference;
+
+
+        
+        }
+        for(int i = 0 ;i < TAIL_CACHE_SIZE;i++){
             sb.tail_cache.ref[i] = NullReference;
 
         }
-        int count = sb.tail_blk;
-        for(int i = 0; i < HEAD_CACHE_SIZE;i++){
-            sb.head_cache.ref[i] = count;
-            count++;
+        sb.tail_cache.idx = 0;
+        if(free_data_zone > HEAD_CACHE_SIZE ){
+           
+            int valores = sb.tail_blk + 1;
+            
+            for(int i = 0; i < HEAD_CACHE_SIZE ; i++){
+                sb.head_cache.ref[i] = valores ;
+                valores++;        
 
-        }
+            }
+            sb.head_cache.idx = 0;
+            }
+            else{
+                int valores = sb.tail_blk + 2;
+                int dif = HEAD_CACHE_SIZE - free_data_zone;
+                for(int i = 0; i< HEAD_CACHE_SIZE; i++){
+                    if(i >= dif){
+                        sb.head_cache.ref[i] = valores;
+                        valores++;
+                    }else{
+                        sb.head_cache.ref[i] = NullReference;
+                    }
+                    sb.head_cache.idx = dif;
 
+
+                }
+
+            }
+        
+        
         soWriteRawBlock(0,&sb);
         
         
