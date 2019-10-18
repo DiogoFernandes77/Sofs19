@@ -16,18 +16,18 @@ namespace sofs19
         
         // if it is zero initially, the value ntotal/16 should be used as the start value for itotal, where / stands for the integer division
         if(itotal==0) itotal=ntotal/16;
-        /* Aviso!! Codigo dos profs usa itotal/4, mas a documentação diz itotal/8 ... 
-        	Fui com a versão de teste porque a documentação já tinha tb outro erro. 
-        	No código dos profs arredonda tb por cima depois da operação... 
-        	Se for preciso depois de nos esclarecerem isso eu mudo.
-		*/
+        /* Aviso!! O codigo binário dos profs parece usar itotal/4, mas a documentação diz itotal/8 ...
+        	 No código dos profs arredonda tb por cima depois da operação... 
+        	 Tudo em casos de teste limites
+           Usei o valor que ia dar de acordo com os testes realizados, mas se for pedido é só mudar as 2 divisões a baixo por /8
+		    */
 
         //itotal is always lower than or equal to ntotal/8 (ntotal/4 nos testes, encolhe ombros)
         if(itotal>ntotal/4) {
         	itotal=ntotal/4;
         }
 
-        // "itotal is always greater than or equal to IPC??" Outro erro na doc, IPC não exite, assumo que seja IPB (faz sentido) 
+        // "itotal is always greater than or equal to "... IPB 
         if(itotal<IPB) itotal=IPB;
         
         //itotal must be rounded up to be multiple of IPB

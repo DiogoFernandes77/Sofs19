@@ -13,7 +13,7 @@ namespace sofs19
     void grpFillReferenceDataBlocks(uint32_t ntotal, uint32_t itotal, uint32_t nbref)
     {
         soProbe(605, "%s(%u, %u, %u)\n", __FUNCTION__, ntotal, itotal, nbref);
-
+        /*
         uint32_t first = 1 + itotal / IPB  + 1; //1ª end físico da zona ref 
         uint32_t fbr = 1 + nbref; //indice da 1ª posiçao lógica do FreeDataBlock
         uint32_t ref[RPB];
@@ -36,7 +36,7 @@ namespace sofs19
             }
         }
         soWriteRawBlock(first + nbref, ref);
-
+        */
         return binFillReferenceDataBlocks(ntotal, itotal, nbref);
 
     }
