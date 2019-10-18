@@ -47,12 +47,12 @@ namespace sofs19
             if(block==1) {
                 // Primeiro inode aponta para root do filesystem
                 /* Octal -> 
-                    directory  : 0040000
-                    owner  rwx : 00700
-                    group  rwx : 00070
-                    others r_x : 00005
+                    S_IFDIR -> directory  : 0040000
+                    S_IRWXU -> owner  rwx : 00700
+                    S_IRWXG -> group  rwx : 00070
+          S_IROTH | S_IXOTH -> others r_x : 00005
                 */
-                inodeBlock[0].mode = 0040775;
+                inodeBlock[0].mode = S_IFDIR | S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH;
                 inodeBlock[0].lnkcnt = 2;
                 inodeBlock[0].owner = 1000;
                 inodeBlock[0].group = 1000;
