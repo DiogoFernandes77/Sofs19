@@ -33,7 +33,7 @@ namespace sofs19
 
         if(nfree == 0){ // se tiver cheio cria outro bloco
             uint32_t num = soAllocDataBlock();
-            for(int i = 0; i<RPB; i++){
+            for(uint32_t i = 0; i<RPB; i++){
                 ref[i] = NullReference;
             }
             soWriteDataBlock(num,ref);
@@ -42,7 +42,7 @@ namespace sofs19
         else{
 
             if(nfree >= TAIL_CACHE_SIZE){
-                for(int i=0; i<TAIL_CACHE_SIZE; i++){
+                for(uint32_t i=0; i<TAIL_CACHE_SIZE; i++){
                     ref[idx_ref] = sb->tail_cache.ref[i]; // copia para a ref os valores da tail cache
                     idx_ref++;
                     sb->tail_cache.ref[i] = NullReference; // liberta tail cache
@@ -51,8 +51,8 @@ namespace sofs19
             }
 
             else{
-                uint32_t k = HEAD_CACHE_SIZE - 1; 
-                for (int i = 0; i < nfree; i++)
+                uint32_t k = TAIL_CACHE_SIZE - 1; 
+                for (uint32_t i = 0; i < nfree; i++)
                 {
                     ref[idx_ref] = sb->tail_cache.ref[i]; // copia para a ref os valores da tail cache
                     idx_ref++;
@@ -64,7 +64,7 @@ namespace sofs19
 
         soSaveSuperBlock();
         /* change the following line by your code */
-        binDepleteTailCache();
+        //binDepleteTailCache();
     }
 }
 
