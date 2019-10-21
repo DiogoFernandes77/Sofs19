@@ -25,40 +25,58 @@ namespace sofs19
         soProbe(444, "%s()\n", __FUNCTION__);
         soOpenSuperBlock ( );
         SOSuperBlock* sb = soGetSuperBlockPointer ();
-        uint32_t nblock = sb->tail_blk; // numero do ref data block
-        uint32_t idx_ref = sb->tail_idx; // 1ª pos livre no ref data bloco
         uint32_t ref[RPB];
-        uint32_t nfree = RPB-idx_ref;
-        soReadDataBlock(nblock, ref); // le do bloco para ref
+        uint32_t nfree = RPB - sb->tail_idx ;
+        soReadDataBlock(sb->tail_blk, ref); // le do bloco para ref 
 
         if(nfree == 0){ // se tiver cheio cria outro bloco
-            uint32_t num = soAllocDataBlock();
-            for(uint32_t i = 0; i<RPB; i++){
-                ref[i] = NullReference;
-            }
+            uint32_t num = soAllocDataBlock(); // atualizar o superblock
+            soReadDataBlock(sb->tail_blk, ref);
+            ref[0] = num;
             soWriteDataBlock(num,ref);
+            uint32_t new_ref[RPB];
+
+            for(uint32_t i = 0; i<RPB; i++){
+                new_ref[i] = NullReference;
+            }
+            sb->tail_cache.idx = 0;
+            sb->tail_blk = 1;
+            soWriteDataBlock(num,new_ref);
         }
 
         else{
 
             if(nfree >= TAIL_CACHE_SIZE){
                 for(uint32_t i=0; i<TAIL_CACHE_SIZE; i++){
-                    ref[idx_ref] = sb->tail_cache.ref[i]; // copia para a ref os valores da tail cache
-                    idx_ref++;
+                    ref[sb->tail_idx] = sb->tail_cache.ref[i]; // copia para a ref os valores da tail cache
+                    sb->tail_idx++;
                     sb->tail_cache.ref[i] = NullReference; // liberta tail cache
                 }
-                soWriteDataBlock(nblock,ref); // escreve na tail reference data block
+                soWriteDataBlock(sb->tail_blk,ref); // escreve na tail reference data block
             }
 
             else{
-                uint32_t k = TAIL_CACHE_SIZE - 1; 
+                sb->tail_cache.idx = 0; // cache esvazia totalmente, logo 1º indicie livre é 0
+                uint32_t idx = nfree + 1;
                 for (uint32_t i = 0; i < nfree; i++)
                 {
-                    ref[idx_ref] = sb->tail_cache.ref[i]; // copia para a ref os valores da tail cache
-                    idx_ref++;
-                    sb->tail_cache.ref[k--] = NullReference;  //liberta tail cache
+                    ref[sb->tail_idx] = sb->tail_cache.ref[i]; // copia para a ref os valores da tail cache
+                    sb->tail_idx++;
+                    sb->tail_cache.ref[i] = NullReference; //limpa a cache
                 }
-                soWriteDataBlock(nblock,ref); // escreve no bloco até á última posiçao   
+                soWriteDataBlock(sb->tail_blk,ref); // escreve no bloco até á última posiçao
+
+                for(uint32_t j = 0; j < TAIL_CACHE_SIZE; j++) { 
+                    
+                    if(j < TAIL_CACHE_SIZE-nfree){ // preenche a cache
+                        sb->tail_cache.ref[j] = idx++;
+                    }
+                    else{// liberta
+                        sb->tail_cache.ref[j] = NullReference;
+                    }
+                }
+
+                sb->tail_cache.idx = TAIL_CACHE_SIZE - nfree; // atualiza a primeira posiçao livre
             }
         }
 
@@ -67,5 +85,3 @@ namespace sofs19
         //binDepleteTailCache();
     }
 }
-
-
