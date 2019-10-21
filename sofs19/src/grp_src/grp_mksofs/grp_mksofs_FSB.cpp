@@ -48,9 +48,9 @@ namespace sofs19
 
 
         sb.head_blk = 1;
-        sb.head_idx = 0;
+        sb.head_idx = 1;
         sb.tail_blk = nbref;
-        sb.tail_idx = 0;
+        sb.tail_idx = (free_data_zone - HEAD_CACHE_SIZE) % (RPB-1) +1 ;
         
         if(sb.dz_free < HEAD_CACHE_SIZE){
             sb.head_blk = NullReference;
