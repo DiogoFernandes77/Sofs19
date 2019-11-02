@@ -46,7 +46,6 @@ namespace sofs19
         uint32_t usedBlocks = (itotal/IPB)+1;
         // store data structure on disk
         soWriteRawBlock(usedBlocks,root);
-
         //return binFillRootDir(itotal);
     }
 };
