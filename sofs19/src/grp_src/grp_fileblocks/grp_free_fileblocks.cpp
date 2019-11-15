@@ -132,7 +132,6 @@ namespace sofs19
         soReadDataBlock(i2, ref);
 
         uint32_t reverse = (ffbn/RPB)+1;
-        printf("Reverse: %lu\n", reverse);
 
         // libertar File Blocks em i2
         uint32_t j;
