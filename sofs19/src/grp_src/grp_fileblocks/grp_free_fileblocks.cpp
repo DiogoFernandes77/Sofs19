@@ -44,28 +44,46 @@ namespace sofs19
         }
         // atualizar número de ffbn
         ffbn -= N_DIRECT;
-        printf("FFBN: %lu\n", ffbn);
         
         // libertar File Blocks em i1
-        uint32_t j=0;
+        uint32_t j;
         bool empty;
-        //for(j=0; j<N_INDIRECT; j++) {
+        for(j=0; j<N_INDIRECT; j++) {
             if(inode->i1[j] != NullReference) {
                 empty = grpFreeIndirectFileBlocks(inode, inode->i1[j], ffbn);
                 // libertar i[i] caso necessário
                 if(empty) {
+                    soFreeDataBlock(inode->i1[j]);
                     inode->i1[j] = NullReference;
                     inode->blkcnt--;
                 }
-                // atualizar número de ffbn
-                if (ffbn > RPB) {
-                    ffbn -= RPB;
-                } else {
-                    ffbn = 0;
-                }
-                printf("FFBN: %lu\n", ffbn);
             }
-        //}
+            // atualizar número de ffbn
+            if (ffbn > RPB) {
+                ffbn -= RPB;
+            } else {
+                ffbn = 0;
+            }
+        }
+
+        // libertar File Blocks em i2
+        for(j=0; j<N_DOUBLE_INDIRECT; j++) {
+            if(inode->i2[j] != NullReference) {
+                empty = grpFreeDoubleIndirectFileBlocks(inode, inode->i2[j], ffbn);
+                // libertar i[i] caso necessário
+                if(empty) {
+                    inode->i2[j] = NullReference;
+                    inode->blkcnt--;
+                }
+            }
+            // atualizar número de ffbn
+            if (ffbn > RPB*RPB) {
+                ffbn -= RPB*RPB;
+            } else {
+                ffbn = 0;
+            }
+        }
+
         // binFreeFileBlocks(ih, ffbn);
     }
 
@@ -81,10 +99,9 @@ namespace sofs19
         soReadDataBlock(i1, ref);
         
         uint32_t reverse = ffbn+1;
-
+        
         for(; ffbn<RPB; ffbn++) {
             if(ref[ffbn] != NullReference) {
-                printf("Ref indireta[0]: %lu\n", ref[ffbn]);
                 soFreeDataBlock(ref[ffbn]);
                 ref[ffbn] = NullReference;
                 ip->blkcnt--;
@@ -105,15 +122,49 @@ namespace sofs19
 
     /* ********************************************************* */
 
-#if false
     static bool grpFreeDoubleIndirectFileBlocks(SOInode * ip, uint32_t i2, uint32_t ffbn)
     {
         soProbe(303, "%s(..., %u, %u)\n", __FUNCTION__, i2, ffbn);
 
-        /* change the following line by your code */
-        throw SOException(ENOSYS, __FUNCTION__); 
+        // array de referências a file blocks
+        uint32_t ref[RPB];
+        // ler as referências do bloco
+        soReadDataBlock(i2, ref);
+
+        uint32_t reverse = (ffbn/RPB)+1;
+        printf("Reverse: %lu\n", reverse);
+
+        // libertar File Blocks em i2
+        uint32_t j;
+        bool empty;
+        for(j=0; j<RPB; j++) {
+            if(ref[j] != NullReference and ffbn<RPB) {
+                empty = grpFreeIndirectFileBlocks(ip, ref[j], ffbn);
+                // libertar i2[i] caso necessário
+                if(empty) {
+                    soFreeDataBlock(ref[j]);
+                    ref[j] = NullReference;
+                    ip->blkcnt--;
+                }
+            }
+            // atualizar número de ffbn
+            if (ffbn > RPB) {
+                ffbn -= RPB;
+            } else {
+                ffbn = 0;
+            }
+        }
+
+        // escrever novo buffer    
+        soWriteDataBlock(i2, ref);
+        for(; reverse>0; reverse--) {
+            if(ref[reverse-1] != NullReference) {
+                return false;
+            }
+        }       
+        return true;
+        //throw SOException(ENOSYS, __FUNCTION__); 
     }
-#endif
 
     /* ********************************************************* */
 };
