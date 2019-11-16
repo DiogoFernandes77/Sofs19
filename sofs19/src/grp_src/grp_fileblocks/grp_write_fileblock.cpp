@@ -14,8 +14,15 @@ namespace sofs19
     {
         soProbe(332, "%s(%d, %u, %p)\n", __FUNCTION__, ih, fbn, buf);
 
-        /* change the following line by your code */
-        binWriteFileBlock(ih, fbn, buf);
+        uint32_t block = soGetFileBlock(ih, fbn);
+
+        if(block == NullReference)
+        {
+            block = soAllocFileBlock(ih, fbn);
+        }
+
+        soWriteDataBlock(block, buf);
+        //binWriteFileBlock(ih, fbn, buf);
     }
-};
+}
 
