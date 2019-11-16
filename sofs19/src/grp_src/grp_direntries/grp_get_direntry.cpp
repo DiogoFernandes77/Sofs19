@@ -16,7 +16,29 @@ namespace sofs19
         soProbe(201, "%s(%d, %s)\n", __FUNCTION__, pih, name);
 
         /* change the following line by your code */
-        return binGetDirEntry(pih, name);
+        //return binGetDirEntry(pih, name);
+
+        SOInode *inode = soGetInodePointer(pih);
+        SODirEntry dir[DPB];
+        if (strchr(name, '/')!=NULL){
+                throw SOException(EINVAL, __FUNCTION__);
+            }
+        uint32_t nblock = inode->size/BlockSize;
+
+        for(uint32_t i = 0; i<nblock;i++){
+            soReadDataBlock(i,dir);
+            
+            
+            for(uint32_t j=0; j<DPB; j++){
+                if(strcmp(name, dir[j].name) == 0){
+            			return dir[j].in;
+                }
+            }
+        }
+        return NullReference;
+
+
+
     }
 };
 
